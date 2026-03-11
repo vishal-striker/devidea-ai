@@ -1,0 +1,20 @@
+{
+  "name": "devidea-ai",
+  "version": "1.0.0",
+  "description": "AI-powered Project Idea Generator for Developers",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "node server/server.js",
+    "client": "cd client && npm start",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": ["mern", "project-generator", "ai", "developer-tools"],
+  "author": "Developer",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
