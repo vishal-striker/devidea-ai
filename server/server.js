@@ -14,12 +14,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [
-    "https://devidea-ai-app.vercel.app",
-    "https://devidea-ai-7hu81fb8r-vishal-strikers-projects.vercel.app"
-  ],
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 
