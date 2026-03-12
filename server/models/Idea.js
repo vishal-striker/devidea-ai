@@ -30,10 +30,18 @@ const IdeaSchema = new mongoose.Schema({
   extensions: [{
     type: String
   }],
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 module.exports = mongoose.model('Idea', IdeaSchema);

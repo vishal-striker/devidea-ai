@@ -6,6 +6,7 @@ const {
   getIdeas,
   deleteIdea
 } = require('../controllers/ideaController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // @route   POST /api/ideas/generate
 // @desc    Generate a new project idea
@@ -14,18 +15,18 @@ router.post('/generate', generateIdea);
 
 // @route   POST /api/ideas/save
 // @desc    Save an idea to database
-// @access  Public
-router.post('/save', saveIdea);
+// @access  Private
+router.post('/save', authMiddleware, saveIdea);
 
 // @route   GET /api/ideas
-// @desc    Get all saved ideas
-// @access  Public
-router.get('/', getIdeas);
+// @desc    Get current user's saved ideas
+// @access  Private
+router.get('/', authMiddleware, getIdeas);
 
 // @route   DELETE /api/ideas/:id
-// @desc    Delete an idea
-// @access  Public
-router.delete('/:id', deleteIdea);
+// @desc    Delete current user's idea
+// @access  Private
+router.delete('/:id', authMiddleware, deleteIdea);
 
 module.exports = router;
 

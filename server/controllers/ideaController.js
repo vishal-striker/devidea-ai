@@ -595,17 +595,17 @@ const generateIdea = async (req, res) => {
 
 // @desc    Save an idea to database
 // @route   POST /api/ideas/save
-// @access  Public
+// @access  Private
 const saveIdea = async (req, res) => {
   try {
     const { title, description, features, architecture, techStack, difficulty, extensions } = req.body;
 
     console.log('=== SAVE IDEA REQUEST ===');
-    console.log('Received data:', { title, techStack, difficulty, hasFeatures: !!features });
+    console.log('User ID:', req.user.id);
+    console.log('Received data:', { title, techStack, difficulty });
 
     // Validate required fields
     if (!title || !description || !architecture || !techStack || !difficulty) {
-      console.log('Validation failed: missing required fields');
       return res.status(400).json({ 
         message: 'Please provide all required fields' 
       });
@@ -618,43 +618,51 @@ const saveIdea = async (req, res) => {
       architecture,
       techStack,
       difficulty,
-      extensions: extensions || []
+      extensions: extensions || [],
+      userId: req.user.id
     });
 
     const savedIdea = await idea.save();
-    console.log('Idea saved successfully to MongoDB with ID:', savedIdea._id);
+    console.log('Idea saved for user:', req.user.id, 'ID:', savedIdea._id);
     
-    res.status(201).json(savedIdea);
+    // Populate user info
+    const populatedIdea = await Idea.findById(savedIdea._id).populate('userId', 'name email');
+    
+    res.status(201).json(populatedIdea);
   } catch (error) {
     console.error('Error saving idea:', error.message);
-    res.status(500).json({ message: 'Server Error: ' + error.message });
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
-// @desc    Get all saved ideas
+// @desc    Get current user's saved ideas
 // @route   GET /api/ideas
-// @access  Public
+// @access  Private
 const getIdeas = async (req, res) => {
   try {
-    console.log('=== GET IDEAS REQUEST ===');
+    console.log('=== GET USER IDEAS REQUEST ===');
+    console.log('User ID:', req.user.id);
     
     const { search } = req.query;
     
-    let query = {};
+    let query = { userId: req.user.id };
     
-    // Add search functionality
+    // Add search functionality for user's own ideas
     if (search) {
-      query = {
-        $or: [
-          { title: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } },
-          { techStack: { $regex: search, $options: 'i' } }
-        ]
-      };
+      query.$and = [
+        { userId: req.user.id },
+        {
+          $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+            { techStack: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
     }
 
-    const ideas = await Idea.find(query).sort({ createdAt: -1 });
-    console.log(`Found ${ideas.length} ideas in MongoDB`);
+    const ideas = await Idea.find(query).populate('userId', 'name email').sort({ createdAt: -1 });
+    console.log(`Found ${ideas.length} ideas for user ${req.user.id}`);
     
     res.status(200).json(ideas);
   } catch (error) {
@@ -663,18 +671,23 @@ const getIdeas = async (req, res) => {
   }
 };
 
-// @desc    Delete an idea
+// @desc    Delete current user's idea
 // @route   DELETE /api/ideas/:id
-// @access  Public
+// @access  Private
 const deleteIdea = async (req, res) => {
   try {
-    const idea = await Idea.findById(req.params.id);
+    console.log('Delete request for ID:', req.params.id, 'by user:', req.user.id);
+    
+    const idea = await Idea.findOne({ 
+      _id: req.params.id, 
+      userId: req.user.id 
+    });
 
     if (!idea) {
-      return res.status(404).json({ message: 'Idea not found' });
+      return res.status(404).json({ message: 'Idea not found or you do not have permission to delete it' });
     }
 
-    await idea.deleteOne();
+    await Idea.deleteOne({ _id: req.params.id });
     
     res.status(200).json({ message: 'Idea deleted successfully' });
   } catch (error) {

@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const ideaRoutes = require('./routes/ideaRoutes');
+const authRoutes = require('./routes/auth');
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/ideas', ideaRoutes);
 
 // Health check route
@@ -44,4 +46,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

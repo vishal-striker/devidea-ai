@@ -1,14 +1,22 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { FiZap, FiHome, FiGrid } from 'react-icons/fi';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FiZap, FiHome, FiGrid, FiLogOut, FiUser } from 'react-icons/fi';
+import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const isActive = (path) => {
     return location.pathname === path 
       ? 'text-primary-400 bg-primary-500/10' 
       : 'text-gray-400 hover:text-white hover:bg-dark-700';
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -36,13 +44,40 @@ const Navbar = () => {
               <FiHome className="w-5 h-5" />
               <span className="font-medium">Generator</span>
             </Link>
-            <Link
-              to="/dashboard"
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/dashboard')}`}
-            >
-              <FiGrid className="w-5 h-5" />
-              <span className="font-medium">Dashboard</span>
-            </Link>
+            
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${isActive('/dashboard')}`}
+                >
+                  <FiGrid className="w-5 h-5" />
+                  <span className="font-medium">Dashboard</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                  title="Logout"
+                >
+                  <FiLogOut className="w-5 h-5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-gray-400 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all duration-200 font-medium"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="gradient-text bg-gradient-to-r from-primary-500 to-purple-600 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-primary-500/25 transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

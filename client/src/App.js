@@ -1,18 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Toast from './components/Toast';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
-function App() {
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
+};
+
+function AppContent() {
   const [toast, setToast] = useState(null);
   const [ideas, setIdeas] = useState([]);
+  const { isAuthenticated } = useAuth();
 
-  // Fetch saved ideas on mount
+  // Fetch saved ideas on mount (only if authenticated)
   useEffect(() => {
-    fetchIdeas();
-  }, []);
+    if (isAuthenticated) {
+      fetchIdeas();
+    }
+  }, [isAuthenticated]);
 
   const fetchIdeas = async () => {
     try {
@@ -45,25 +61,54 @@ function App() {
         <Route 
           path="/" 
           element={
-            <Home 
-              showToast={showToast} 
-              onIdeaSaved={handleIdeaSaved} 
-            />
+            <PublicRoute>
+              <Home 
+                showToast={showToast} 
+                onIdeaSaved={handleIdeaSaved} 
+              />
+            </PublicRoute>
           } 
         />
         <Route 
           path="/dashboard" 
           element={
-            <Dashboard 
-              ideas={ideas} 
-              showToast={showToast} 
-              onIdeaDeleted={handleIdeaDeleted} 
-            />
+            <ProtectedRoute>
+              <Dashboard 
+                ideas={ideas} 
+                showToast={showToast} 
+                onIdeaDeleted={handleIdeaDeleted} 
+              />
+            </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/login" 
+          element={
+            <PublicRoute>
+              <Login showToast={showToast} />
+            </PublicRoute>
+          }
+        />
+        <Route 
+          path="/signup" 
+          element={
+            <PublicRoute>
+              <Signup showToast={showToast} />
+            </PublicRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
