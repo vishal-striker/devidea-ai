@@ -16,6 +16,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root route
+app.get('/', (req, res) => {
+  res.send('DevIdea AI API is running 🚀');
+});
+
 // Routes
 app.use('/api/ideas', ideaRoutes);
 
