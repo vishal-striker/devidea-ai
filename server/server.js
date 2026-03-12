@@ -14,8 +14,13 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://devidea-ai-app.vercel.app"
-})); 
+  origin: [
+    "https://devidea-ai-app.vercel.app",
+    "https://devidea-ai-7hu81fb8r-vishal-strikers-projects.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Root route
