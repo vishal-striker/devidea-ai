@@ -27,8 +27,6 @@ const Home = ({ showToast, onIdeaSaved }) => {
   const [saving, setSaving] = useState(false);
 
   const handleGenerate = async () => {
-    alert('Generate button clicked! Tech: ' + selectedTechStack + ', Difficulty: ' + selectedDifficulty);
-    
     if (!selectedTechStack || !selectedDifficulty) {
       showToast('Please select both tech stack and difficulty', 'warning');
       return;
@@ -47,8 +45,6 @@ const Home = ({ showToast, onIdeaSaved }) => {
   };
 
   const handleSave = async (idea) => {
-    alert('Save button clicked for: ' + idea.title);
-    
     setSaving(true);
     try {
       const saved = await saveIdea({
@@ -62,8 +58,9 @@ const Home = ({ showToast, onIdeaSaved }) => {
       });
       showToast('Idea saved successfully!', 'success');
       onIdeaSaved();
+      setGeneratedIdea(null); // Clear generated idea
     } catch (error) {
-      showToast(error || 'Failed to save idea', 'error');
+      showToast(error || 'Failed to save idea. Please login first.', 'error');
     } finally {
       setSaving(false);
     }

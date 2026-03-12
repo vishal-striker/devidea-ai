@@ -58,15 +58,13 @@ function AppContent() {
     <div className="min-h-screen bg-dark-900">
       <Navbar />
       <Routes>
-        <Route 
+<Route 
           path="/" 
           element={
-            <PublicRoute>
-              <Home 
-                showToast={showToast} 
-                onIdeaSaved={handleIdeaSaved} 
-              />
-            </PublicRoute>
+            <Home 
+              showToast={showToast} 
+              onIdeaSaved={handleIdeaSaved} 
+            />
           } 
         />
         <Route 
