@@ -13,7 +13,9 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "https://devidea-ai-app.vercel.app"
+})); 
 app.use(express.json());
 
 // Root route

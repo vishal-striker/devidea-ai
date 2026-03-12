@@ -16,9 +16,8 @@ function App() {
 
   const fetchIdeas = async () => {
     try {
-      console.log('Fetching ideas from /api/ideas...');
-      const response = await fetch('/api/ideas');
-      const data = await response.json();
+      const { getIdeas } = await import('./services/api.js');
+      const data = await getIdeas();
       console.log('Ideas fetched:', data);
       setIdeas(data);
     } catch (error) {
