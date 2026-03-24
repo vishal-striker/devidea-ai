@@ -2,12 +2,16 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB Connected");
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB Connected to devidea");
+    console.log(`Connected DB: ${mongoose.connection.name}`);
   } catch (err) {
-    console.error("MongoDB Connection Error:", err);
-    console.warn('Warning: Running without MongoDB. Idea saving will not work.');
-    // Don't exit - allow server to run for testing without DB
+    console.error('MongoDB Connection Error:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
+    } else {
+      console.warn('Development: Running without MongoDB. Some features limited.');
+    }
   }
 };
 

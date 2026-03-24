@@ -143,15 +143,33 @@ DevIdeaAI/
 
 ## Deployment
 
-### Backend (Render/Railway/Heroku)
+### Backend Render Deployment (devidea-ai.onrender.com)
 
-1. Push code to GitHub
-2. Connect to deployment platform
-3. Set environment variables:
-   - `MONGO_URI` - MongoDB connection string
-   - `OPENAI_API_KEY` - OpenAI key (optional)
-4. Build command: `npm run install-all`
-5. Start command: `npm run start`
+**Repository Root**: `server/`
+
+1. Push: `git push origin main`
+2. Render Dashboard:
+   - Root Directory: `server`
+   - Build Command: `` (blank)
+   - Start Command: `npm start`
+3. Environment Variables:
+   | Name | Example |
+   |------|---------|
+   | MONGO_URI | `mongodb+srv://user:pass%40cluster.../devidea` |
+   | JWT_SECRET | `mysecretkey123!@#min32chars` |
+   | GEMINI_API_KEY | `AIza...` (optional) |
+4. Deploy → Manual Deploy
+
+**Verify**:
+```
+curl https://devidea-ai.onrender.com/api/health
+```
+`{"status": "ok", "mongodb": "connected"}`
+
+**Troubleshooting**:
+- Logs: Mongo connection failed → check URI/%40 encoding
+- Mongo Atlas → Network Access: `0.0.0.0/0`
+- Render free tier sleeps (normal)
 
 ### Frontend (Vercel/Netlify)
 

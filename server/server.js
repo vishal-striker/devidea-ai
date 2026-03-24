@@ -1,15 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const ideaRoutes = require('./routes/ideaRoutes');
 const authRoutes = require('./routes/auth');
 
 // Load environment variables
 dotenv.config();
-
-// Connect to MongoDB
-connectDB();
 
 const app = express();
 
@@ -30,9 +28,11 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/ideas', ideaRoutes);
 
-// Health check route
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'DevIdea AI API is running' });
+  res.json({ 
+    status: "ok", 
+    mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  });
 });
 
 // Error handling middleware
@@ -43,6 +43,20 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    // Connect to MongoDB first
+    await connectDB();
+    
+    // Start server
+    const server = app.listen('0.0.0.0', PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Server failed to start:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
+

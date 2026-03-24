@@ -59,24 +59,45 @@ const generateIdea = async (req, res) => {
     if (genAI) {
       try {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const prompt = `Generate 1 realistic ${difficulty} level software project using ${techStack}.
+        const prompt = `Generate a UNIQUE software project idea.
 
-Return VALID JSON only:
+Tech Stack: ${techStack}
+Difficulty: ${difficulty}
+
+Respond ONLY in valid JSON format:
 
 {
-  "title": "Short catchy title",
-  "description": "1-2 sentences what it does",
-  "features": ["3-5 bullet features"],
-  "architecture": "1 sentence tech stack",
-  "extensions": ["2-3 future features"]
-}`;
+  "title": "project title",
+  "description": "3 sentence project description", 
+  "features": ["feature1","feature2","feature3","feature4"],
+  "architecture": "technical architecture",
+  "extensions": ["future idea1","future idea2"]
+}
+
+Important rules:
+- Output must be valid JSON
+- Do NOT include markdown  
+- Do NOT include explanations
+- Only JSON`;
 
         const result = await model.generateContent(prompt);
-        const text = result.response.text().trim();
+        const responseText = result.response.text().trim();
         
-        idea = JSON.parse(text);
+        console.log('Raw Gemini:', responseText.substring(0, 100) + '...');
+        
+        let parsedIdea;
+        try {
+          parsedIdea = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Parse failed:', parseError.message);
+          console.error('Response:', responseText);
+          throw parseError;
+        }
+        
+        idea = parsedIdea;
         isAIGenerated = true;
-        console.log(`✅ Gemini: ${techStack} ${difficulty}`);
+        console.log(`✅ Gemini ${techStack}-${difficulty}`);
+
       } catch (aiError) {
         console.log('Gemini failed:', aiError.message);
       }
